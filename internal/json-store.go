@@ -68,6 +68,14 @@ func (s *JSONStore) Delete(key string) error {
 	return nil
 }
 
+func (s *JSONStore) GetAllKeys() ([]string, error) {
+	keys := make([]string, 0)
+	for k := range s.data {
+		keys = append(keys, k)
+	}
+	return keys, nil
+}
+
 type JSONDatasource struct {
 	Data map[string]string `json:"data"`
 }

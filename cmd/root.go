@@ -33,12 +33,35 @@ func preRun(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Data file path: %s\n", cfg.DataFile) // Debug line
-
-	store, err := internal.NewJSONStore(cfg.DataFile)
+	jsonStore, err := internal.NewJSONStore(cfg.DataFile)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	var store internal.Store = jsonStore
+
+	if cfg.Encryption {
+		if _, err := os.Stat(cfg.KeyFile); os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "Encryption key file not found: %s\n", cfg.KeyFile)
+			fmt.Fprintf(os.Stderr, "💡 Run 'zoop init' to generate encryption keys\n")
+			os.Exit(1)
+		}
+
+		cipher, err := internal.NewAgeCipherWithKeyFile(cfg.KeyFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		store = internal.NewEncryptedStore(jsonStore, cipher)
+	} else {
+		if needsMigration(jsonStore) {
+			fmt.Println("⚠️  Detected encrypted data but encryption is disabled")
+			fmt.Println("Run 'zoop migrate decrypt' to decrypt your data")
+			fmt.Println("Or enable encryption with 'zoop config set encryption true'")
+			os.Exit(1)
+		}
+	}
+
 	storeManager = internal.NewStoreManager(store)
 }

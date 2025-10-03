@@ -9,7 +9,10 @@ import (
 )
 
 type Config struct {
-	DataFile string `mapstructure:"data_file"`
+	DataFile   string `mapstructure:"data_file"`
+	Encryption bool   `mapstructure:"encryption"`
+	Passphrase string `mapstructure:"passphrase"`
+	KeyFile    string `mapstructure:"key_file"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -22,8 +25,8 @@ func LoadConfig() (*Config, error) {
 	}
 
 	v.SetDefault("data_file", filepath.Join(homeDir, ".zoop", "store.json"))
-
-	// v.SetDefault("encryption", false)
+	v.SetDefault("key_file", filepath.Join(homeDir, ".zoop", "key.txt"))
+	v.SetDefault("encryption", false)
 
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")

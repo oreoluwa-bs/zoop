@@ -6,7 +6,7 @@ type InMemoryStore struct {
 	data map[string]string
 }
 
-// DO NOT USE
+// For testing purposes
 func NewInMemoryStore() *InMemoryStore {
 	data := make(map[string]string)
 
@@ -33,4 +33,12 @@ func (s *InMemoryStore) Set(key string, value string) error {
 func (s *InMemoryStore) Delete(key string) error {
 	delete(s.data, key)
 	return nil
+}
+
+func (s *InMemoryStore) GetAllKeys() ([]string, error) {
+	keys := make([]string, 0)
+	for k := range s.data {
+		keys = append(keys, k)
+	}
+	return keys, nil
 }
