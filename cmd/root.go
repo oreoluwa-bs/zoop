@@ -27,6 +27,6 @@ func Execute() {
 }
 
 func preRun(cmd *cobra.Command, args []string) {
-	store := internal.NewInMemoryStore()
+	store := internal.NewJSONStore("./tmp/data.json")
 	storeManager = internal.NewStoreManager(store)
 }
