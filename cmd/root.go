@@ -27,7 +27,15 @@ func Execute() {
 }
 
 func preRun(cmd *cobra.Command, args []string) {
-	store, err := internal.NewJSONStore("./tmp/data.json")
+	cfg, err := internal.LoadConfig()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Data file path: %s\n", cfg.DataFile) // Debug line
+
+	store, err := internal.NewJSONStore(cfg.DataFile)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
