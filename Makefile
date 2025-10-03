@@ -5,11 +5,11 @@ all: build test
 
 build:
 	@echo "Building..."
-	@go build -o main cmd/cli/main.go
+	@go build -o main main.go
 
 # Run the application
 run:
-	@go run cmd/cli/main.go
+	@go run main.go
 
 # Test the application
 test:
