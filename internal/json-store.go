@@ -4,26 +4,31 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 )
 
 type JSONStore struct {
 	filePath string
 	data     map[string]string
+	mutex    sync.RWMutex
 }
 
-func NewJSONStore(filePath string) *JSONStore {
+func NewJSONStore(filePath string) (*JSONStore, error) {
 	datasource, err := loadJSONDatasource(filePath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return &JSONStore{
 		filePath: filePath,
 		data:     datasource.Data,
-	}
+	}, nil
 }
 
 func (s *JSONStore) Get(key string) (string, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	val, ok := s.data[key]
 	if !ok {
 		return "", fmt.Errorf("Item with key (%s) not found", key)
@@ -33,6 +38,9 @@ func (s *JSONStore) Get(key string) (string, error) {
 }
 
 func (s *JSONStore) Set(key string, value string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	s.data[key] = value
 
 	err := writeJSONDatasource(s.filePath, JSONDatasource{
@@ -45,7 +53,18 @@ func (s *JSONStore) Set(key string, value string) error {
 }
 
 func (s *JSONStore) Delete(key string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	delete(s.data, key)
+
+	err := writeJSONDatasource(s.filePath, JSONDatasource{
+		Data: s.data,
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

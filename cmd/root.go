@@ -27,6 +27,10 @@ func Execute() {
 }
 
 func preRun(cmd *cobra.Command, args []string) {
-	store := internal.NewJSONStore("./tmp/data.json")
+	store, err := internal.NewJSONStore("./tmp/data.json")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 	storeManager = internal.NewStoreManager(store)
 }
