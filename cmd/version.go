@@ -15,6 +15,6 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version number of Zoop",
 	Long:  `All software has versions. This is Zoop's`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Zoop v0.9 -- HEAD")
+		fmt.Printf("Zoop %s\n", Version)
 	},
 }

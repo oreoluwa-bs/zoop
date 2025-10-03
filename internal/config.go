@@ -51,7 +51,6 @@ func LoadConfig() (*Config, error) {
 	if err := os.MkdirAll(filepath.Dir(config.DataFile), 0755); err != nil {
 		return nil, fmt.Errorf("failed to create config directory: %w", err)
 	}
-	// v.SafeWriteConfig()
 
 	return &config, nil
 }

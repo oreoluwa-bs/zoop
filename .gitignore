@@ -27,6 +27,7 @@ tmp/
 
 # Project build
 main
+zoop
 *templ.go
 
 # OS X generated file

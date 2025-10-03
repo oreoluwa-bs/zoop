@@ -12,22 +12,20 @@ func NewEncryptedStore(store Store, cipher Cipher) *EncryptedStore {
 	}
 }
 
-func (e *EncryptedStore) Set(key, value string) error {
-	encrypted, err := e.cipher.Encrypt(value)
-	if err != nil {
-		return err
-	}
-
-	return e.store.Set(key, encrypted)
-}
-
 func (e *EncryptedStore) Get(key string) (string, error) {
-	encrypted, err := e.store.Get(key)
+	encryptedValue, err := e.store.Get(key)
 	if err != nil {
 		return "", err
 	}
+	return e.cipher.Decrypt(encryptedValue)
+}
 
-	return e.cipher.Decrypt(encrypted)
+func (e *EncryptedStore) Set(key, value string) error {
+	encryptedValue, err := e.cipher.Encrypt(value)
+	if err != nil {
+		return err
+	}
+	return e.store.Set(key, encryptedValue)
 }
 
 func (e *EncryptedStore) Delete(key string) error {

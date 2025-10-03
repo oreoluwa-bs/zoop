@@ -2,25 +2,22 @@ package internal
 
 import "fmt"
 
-func MigrateStores(from Store, to Store) error {
-
-	fromKeys, err := from.GetAllKeys()
+func MigrateStores(from, to Store) error {
+	keys, err := from.GetAllKeys()
 	if err != nil {
-		return err
-	}
-	if len(fromKeys) == 0 {
-		fmt.Println("ℹ️  No data to migrate")
-		return nil
+		return fmt.Errorf("Error getting keys: %v\n", err)
 	}
 
-	for _, key := range fromKeys {
-		v, err := from.Get(key)
+	for _, key := range keys {
+		value, err := from.Get(key)
 		if err != nil {
-			return err
+			return fmt.Errorf("Error getting value for %s: %v\n", key, err)
 		}
-		err = to.Set(key, v)
+
+		err = to.Set(key, value)
 		if err != nil {
-			return err
+
+			return fmt.Errorf("Error setting value for %s: %v\n", key, err)
 		}
 	}
 
