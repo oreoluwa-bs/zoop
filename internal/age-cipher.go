@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -34,14 +35,14 @@ func NewAgeCipherWithPassphrase(passphrase string) (*AgeCipher, error) {
 
 func NewAgeCipherWithKeyFile(keyFile string) (*AgeCipher, error) {
 
-	f, err := os.Open(keyFile)
+	data, err := os.ReadFile(keyFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read key file: %w", err)
 	}
 
-	identities, err := age.ParseIdentities(f)
+	identities, err := age.ParseIdentities(strings.NewReader(string(data)))
 	if err != nil {
-		return nil, fmt.Errorf("failed to read key file: %w", err)
+		return nil, fmt.Errorf("failed to parse identities: %w", err)
 	}
 
 	if len(identities) == 0 {
@@ -50,9 +51,9 @@ func NewAgeCipherWithKeyFile(keyFile string) (*AgeCipher, error) {
 
 	identity := identities[0]
 
-	recipients, err := age.ParseRecipients(f)
+	recipients, err := age.ParseRecipients(strings.NewReader(string(data)))
 	if err != nil {
-		return nil, fmt.Errorf("failed to read key file: %w", err)
+		return nil, fmt.Errorf("failed to parse recipients: %w", err)
 	}
 
 	if len(recipients) == 0 {
@@ -85,11 +86,16 @@ func (a *AgeCipher) Encrypt(plaintext string) (string, error) {
 			"Failed to close encrypted item: %v", err)
 	}
 
-	return string(out.Bytes()), nil
+	return base64.StdEncoding.EncodeToString(out.Bytes()), nil
 }
 
 func (a *AgeCipher) Decrypt(ciphertext string) (string, error) {
-	f := strings.NewReader(ciphertext)
+	data, err := base64.StdEncoding.DecodeString(ciphertext)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode base64: %w", err)
+	}
+
+	f := bytes.NewReader(data)
 
 	r, err := age.Decrypt(f, a.identity)
 	if err != nil {

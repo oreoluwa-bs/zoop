@@ -14,8 +14,8 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use:              "Zoop",
-	Short:            "Zoop is a fast cli for storing and retrieving you store and retrieve anything",
-	Long:             `A fast, minimal CLI for storing and retrieving you store and retrieve anything—API keys, passwords, tokens, notes, secrets`,
+	Short:            "Zoop is a fast cli for storing and retrieving anything",
+	Long:             `A fast, minimal CLI for storing and retrieving anything—API keys, passwords, tokens, notes, secrets`,
 	PersistentPreRun: preRun,
 }
 
@@ -33,7 +33,14 @@ func preRun(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	jsonStore, err := internal.NewJSONStore(cfg.DataFile)
+	var dataFile string
+	if cfg.Encryption {
+		dataFile = cfg.DataFile + ".enc"
+	} else {
+		dataFile = cfg.DataFile
+	}
+
+	jsonStore, err := internal.NewJSONStore(dataFile)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

@@ -69,6 +69,9 @@ func (s *JSONStore) Delete(key string) error {
 }
 
 func (s *JSONStore) GetAllKeys() ([]string, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
 	keys := make([]string, 0)
 	for k := range s.data {
 		keys = append(keys, k)

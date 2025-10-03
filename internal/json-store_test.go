@@ -34,7 +34,7 @@ func TestJSONStore_SetGet(t *testing.T) {
 		t.Fatal(err)
 	}
 	if val != "get" {
-		t.Errorf("Got %s; want %s", "get", "set")
+		t.Errorf("Got %s; want %s", val, "get")
 	}
 }
 

@@ -45,7 +45,18 @@ var migrateCmd = &cobra.Command{
 			}
 
 			// Migrate all data
-			internal.MigrateStores(encryptedStore, plainStore)
+			err = internal.MigrateStores(encryptedStore, plainStore)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			// Clean up encrypted file
+			err = os.Remove(cfg.DataFile + ".enc")
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: failed to remove encrypted file: %v\n", err)
+			}
+
 			fmt.Println("✅ Data decrypted successfully")
 
 		} else if action == "encrypt" {
@@ -70,7 +81,18 @@ var migrateCmd = &cobra.Command{
 			}
 
 			// Migrate all data
-			internal.MigrateStores(plainStore, encryptedStore)
+			err = internal.MigrateStores(plainStore, encryptedStore)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			// Clean up plain file
+			err = os.Remove(cfg.DataFile)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: failed to remove plain file: %v\n", err)
+			}
+
 			fmt.Println("✅ Data encrypted successfully")
 		}
 	},
